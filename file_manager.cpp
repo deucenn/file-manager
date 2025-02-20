@@ -8,7 +8,7 @@ int main()
     std::cout << "File Manager" << std::endl;
     std::cout << "1. Create a new file" << std::endl;
     std::cout << "2. Open an existing file" << std::endl;
-    std::cout << "3. Delete file" << std::end;
+    std::cout << "3. Delete file" << std::endl;
     std::cout << "4. Exit" << std::endl;
 
     int choice;
@@ -74,6 +74,15 @@ int main()
         std::string file_name;
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         std::getline(std::cin, file_name);
+
+        if (remove(file_name.c_str()) != 0)
+        {
+            std::cout << "Error deleting file" << std::endl;
+        }
+        else
+        {
+            std::cout << "File '" << file_name << "' successfully deleted" << std::endl;
+        }
     }
     else if (choice == 4)
     {
