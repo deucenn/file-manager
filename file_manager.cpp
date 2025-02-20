@@ -3,12 +3,16 @@
 #include <string>
 #include <limits>
 #include <filesystem>
+#include <chrono>
+#include <iomanip>
+#include <format>
 
 void currentDirectory();
 void createFile();
 void openFile();
 void deleteFile();
 void renameFile();
+void getFileInfo();
 
 int main()
 {
@@ -43,6 +47,9 @@ int main()
             break;
         case 4:
             renameFile();
+            break;
+        case 5:
+            getFileInfo();
             break;
         case 8:
             std::cout << "Exiting..." << std::endl;
@@ -153,26 +160,73 @@ void renameFile()
     std::string current_file_name;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, current_file_name);
-    
+
     std::string new_file_name;
     std::cout << "Enter the new name of the file (inlcuding extensions): " << std::endl;
     std::getline(std::cin, new_file_name);
 
-    try {
-        if (std::filesystem::exists(new_file_name)) {
+    try
+    {
+        if (std::filesystem::exists(new_file_name))
+        {
             char overwrite;
             std::cout << "Warning: File '" << new_file_name << "' already exists. Overwrite? (y/n): ";
             std::cin >> overwrite;
-            if (tolower(overwrite) != 'y') {
+            if (tolower(overwrite) != 'y')
+            {
                 std::cout << "Rename cancelled." << std::endl;
-                return; 
+                return;
             }
         }
         std::filesystem::rename(current_file_name, new_file_name);
-        std::cout << "File '" << current_file_name << "' successfully renamed to '" << new_file_name << "'.\n" << std::endl;
-    } catch (const std::filesystem::filesystem_error& ex) {
-        std::cerr << "Error renaming file: " << ex.what() << std::endl; 
+        std::cout << "File '" << current_file_name << "' successfully renamed to '" << new_file_name << "'.\n"
+                  << std::endl;
+    }
+    catch (const std::filesystem::filesystem_error &ex)
+    {
+        std::cerr << "Error renaming file: " << ex.what() << std::endl;
     }
 };
 
-void getFileInfo() {};
+void getFileInfo()
+{
+    std::cout << "Getting file information..." << std::endl;
+    std::cout << "Enter the name of the file (inlcuding extensions): " << std::endl;
+    std::string file_name;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::getline(std::cin, file_name);
+
+    try
+    {
+        if (std::filesystem::exists(file_name))
+        {
+            std::filesystem::path file_path(file_name);
+            std::cout << "File Name: " << file_path.filename() << std::endl;
+            std::cout << "File Extension: " << file_path.extension() << std::endl;
+            std::cout << "Parent Directory: " << std::filesystem::current_path() << std::endl;
+            std::cout << "Is Directory: " << std::filesystem::is_directory(file_path) << std::endl;
+            std::cout << "Is Symbolic Link: " << std::filesystem::is_symlink(file_path) << std::endl;
+            std::cout << "File Size: " << std::to_string(std::filesystem::file_size(file_path)) << " bytes" << std::endl;
+
+            // Last Modified Time
+            // auto last_write_time = std::filesystem::last_write_time(file_path);
+            // std::time_t cftime = std::chrono::system_clock::to_time_t(last_write_time);
+            // std::cout << "Last Modified: " << std::put_time(std::localtime(&cftime), "%c") << std::endl;
+            // auto p = std::filesystem::temp_directory_path();
+            // std::filesystem::file_time_type ftime = std::filesystem::last_write_time(p);
+            // std::cout << "Last Modified: " << std::format(ftime) << std::endl;
+
+            std::cout << "\nPress Enter twice to continue..." << std::endl;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+            std::cin.get();
+        }
+        else
+        {
+            std::cout << "File '" << file_name << "' does not exist." << std::endl;
+        }
+    }
+    catch (const std::filesystem::filesystem_error &ex)
+    {
+        std::cerr << "Error getting file information: " << ex.what() << std::endl;
+    }
+};
