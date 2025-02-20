@@ -78,6 +78,10 @@ void openFile() {
             std::cout << line << '\n';
         }
         file.close();
+
+        std::cout << "\nPress Enter twice to continue...";
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear buffer
+        std::cin.get();
     }
     
     else
