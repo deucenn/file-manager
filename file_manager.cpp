@@ -15,6 +15,7 @@ void renameFile();
 void getFileInfo();
 void moveFile();
 void createFolder();
+void deleteFolder();
 
 int main()
 {
@@ -60,6 +61,9 @@ int main()
             break;
         case 7:
             createFolder();
+            break;
+        case 8:
+            deleteFolder();
             break;
         case 9:
             std::cout << "Exiting..." << std::endl;
@@ -244,7 +248,6 @@ void getFileInfo()
 void moveFile() {};
 
 void createFolder() {
-    // fs::create_directories("./a/b/c")
     std::cout << "Creating a new folder..." << std::endl;
     std::cout << "Enter the name of the folder: " << std::endl;
     std::string folder_name;
@@ -256,4 +259,16 @@ void createFolder() {
     std::cout << "Folder '" << folder_name << "' created successfully" << std::endl;
 };
 
-void deleteFolder() {};
+void deleteFolder() {
+    std::cout << "Deleting folder..." << std::endl;
+    std::cout << "Enter the name of the folder: " << std::endl;
+    std::string folder_name;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::getline(std::cin, folder_name);
+
+    if (std::filesystem::remove_all(folder_name)) {
+        std::cout << "Folder '" << folder_name << "' successfully deleted" << std::endl;
+    } else {
+        std::cout << "Error deleting folder '" << folder_name << "'. It may still contain files." << std::endl;
+    }
+};
