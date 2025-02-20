@@ -13,6 +13,8 @@ void openFile();
 void deleteFile();
 void renameFile();
 void getFileInfo();
+void moveFile();
+void createFolder();
 
 int main()
 {
@@ -27,7 +29,9 @@ int main()
         std::cout << "4. Rename file" << std::endl;
         std::cout << "5. Get file information" << std::endl;
         std::cout << "6. Move file" << std::endl;
-        std::cout << "8. Exit" << std::endl;
+        std::cout << "7. Create folder" << std::endl;
+        std::cout << "8. Delete folder" << std::endl;
+        std::cout << "9. Exit" << std::endl;
         std::cout << "Enter your choice: ";
         std::cin >> choice;
 
@@ -51,13 +55,19 @@ int main()
         case 5:
             getFileInfo();
             break;
-        case 8:
+        case 6:
+            moveFile();
+            break;
+        case 7:
+            createFolder();
+            break;
+        case 9:
             std::cout << "Exiting..." << std::endl;
             break;
         default:
             std::cout << "Invalid choice. Please try again." << std::endl;
         }
-    } while (choice != 8);
+    } while (choice != 9);
 
     return 0;
 }
@@ -217,7 +227,7 @@ void getFileInfo()
             // std::cout << "Last Modified: " << std::format(ftime) << std::endl;
 
             std::cout << "\nPress Enter twice to continue..." << std::endl;
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::cin.get();
         }
         else
@@ -230,3 +240,20 @@ void getFileInfo()
         std::cerr << "Error getting file information: " << ex.what() << std::endl;
     }
 };
+
+void moveFile() {};
+
+void createFolder() {
+    // fs::create_directories("./a/b/c")
+    std::cout << "Creating a new folder..." << std::endl;
+    std::cout << "Enter the name of the folder: " << std::endl;
+    std::string folder_name;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::getline(std::cin, folder_name);
+
+    std::filesystem::create_directory(folder_name);
+
+    std::cout << "Folder '" << folder_name << "' created successfully" << std::endl;
+};
+
+void deleteFolder() {};
