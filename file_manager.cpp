@@ -8,6 +8,7 @@ void currentDirectory();
 void createFile();
 void openFile();
 void deleteFile();
+void renameFile();
 
 int main()
 {
@@ -19,7 +20,10 @@ int main()
         std::cout << "1. Create a new file" << std::endl;
         std::cout << "2. Open an existing file" << std::endl;
         std::cout << "3. Delete file" << std::endl;
-        std::cout << "4. Exit" << std::endl;
+        std::cout << "4. Rename file" << std::endl;
+        std::cout << "5. Get file information" << std::endl;
+        std::cout << "6. Move file" << std::endl;
+        std::cout << "8. Exit" << std::endl;
         std::cout << "Enter your choice: ";
         std::cin >> choice;
 
@@ -38,12 +42,15 @@ int main()
             deleteFile();
             break;
         case 4:
+            renameFile();
+            break;
+        case 8:
             std::cout << "Exiting..." << std::endl;
             break;
         default:
             std::cout << "Invalid choice. Please try again." << std::endl;
         }
-    } while (choice != 4);
+    } while (choice != 8);
 
     return 0;
 }
@@ -56,7 +63,9 @@ void currentDirectory()
         std::cout << "\nPress Enter to continue...";
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear buffer
         std::cin.get();
-    } catch (const std::filesystem::filesystem_error& ex) {
+    }
+    catch (const std::filesystem::filesystem_error &ex)
+    {
         std::cerr << "Error: " << ex.what() << std::endl;
     }
 }
@@ -135,4 +144,35 @@ void deleteFile()
     {
         std::cout << "File '" << file_name << "' successfully deleted" << std::endl;
     }
-}
+};
+
+void renameFile()
+{
+    std::cout << "Renaming file..." << std::endl;
+    std::cout << "Enter the current name of the file (inlcuding extensions) you want to rename: " << std::endl;
+    std::string current_file_name;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::getline(std::cin, current_file_name);
+    
+    std::string new_file_name;
+    std::cout << "Enter the new name of the file (inlcuding extensions): " << std::endl;
+    std::getline(std::cin, new_file_name);
+
+    try {
+        if (std::filesystem::exists(new_file_name)) {
+            char overwrite;
+            std::cout << "Warning: File '" << new_file_name << "' already exists. Overwrite? (y/n): ";
+            std::cin >> overwrite;
+            if (tolower(overwrite) != 'y') {
+                std::cout << "Rename cancelled." << std::endl;
+                return; 
+            }
+        }
+        std::filesystem::rename(current_file_name, new_file_name);
+        std::cout << "File '" << current_file_name << "' successfully renamed to '" << new_file_name << "'.\n" << std::endl;
+    } catch (const std::filesystem::filesystem_error& ex) {
+        std::cerr << "Error renaming file: " << ex.what() << std::endl; 
+    }
+};
+
+void getFileInfo() {};
