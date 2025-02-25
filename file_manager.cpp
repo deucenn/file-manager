@@ -6,89 +6,178 @@
 #include <chrono>
 #include <iomanip>
 #include <format>
+#include <vector>
 
-void currentDirectory();
-void createFile();
-void openFile();
-void deleteFile();
-void renameFile();
-void getFileInfo();
-void moveFile();
-void createFolder();
-void deleteFolder();
+namespace fs = std::filesystem;
 
-int main()
+class FileManager
 {
-    int choice;
-    do
-    {
-        std::cout << "File Manager" << std::endl;
-        std::cout << "0. Current directory" << std::endl;
-        std::cout << "1. Create a new file" << std::endl;
-        std::cout << "2. Open an existing file" << std::endl;
-        std::cout << "3. Delete file" << std::endl;
-        std::cout << "4. Rename file" << std::endl;
-        std::cout << "5. Get file information" << std::endl;
-        std::cout << "6. Move file" << std::endl;
-        std::cout << "7. Create folder" << std::endl;
-        std::cout << "8. Delete folder" << std::endl;
-        std::cout << "9. Exit" << std::endl;
-        std::cout << "Enter your choice: ";
-        std::cin >> choice;
+private:
+    fs::path currentDirectory;
 
-        switch (choice)
-        {
-        case 0:
-            currentDirectory();
-            break;
-        case 1:
-            createFile();
-            break;
-        case 2:
-            openFile();
-            break;
-        case 3:
-            deleteFile();
-            break;
-        case 4:
-            renameFile();
-            break;
-        case 5:
-            getFileInfo();
-            break;
-        case 6:
-            moveFile();
-            break;
-        case 7:
-            createFolder();
-            break;
-        case 8:
-            deleteFolder();
-            break;
-        case 9:
-            std::cout << "Exiting..." << std::endl;
-            break;
-        default:
-            std::cout << "Invalid choice. Please try again." << std::endl;
-        }
-    } while (choice != 9);
+public:
+    FileManager() : currentDirectory(fs::current_path()) {}
 
-    return 0;
-}
+    void cd(const std::string &path);
+    void ls();
+    void pwd();
+    void mkfil(const std::string &fileName);
+    void rmfil(const std::string &fileName);
+    void openfil(const std::string &fileName);
+    void renamefil(const std::string &oldFileName, const std::string &newFileName);
+    void mvfil(const std::string &sourceFileName, const std::string &destinationFileName);
+    void inffil(const std::string &fileName);
+    void mkdir(const std::string &path);
+    void rmdir(const std::string &path);
+};
 
-void currentDirectory()
+void FileManager::cd(const std::string &path)
 {
     try
     {
-        std::cout << "Current Directory: " << std::filesystem::current_path() << std::endl;
-        std::cout << "\nPress Enter to continue...";
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear buffer
-        std::cin.get();
+        if (path == "..")
+        {
+            if (currentDirectory.has_parent_path())
+            { // Check if we're at the root
+                currentDirectory = currentDirectory.parent_path();
+            }
+            else
+            {
+                std::cerr << "Already at the root directory." << std::endl;
+                return;
+            }
+        }
+        else
+        {
+            fs::path newPath = currentDirectory / path;
+            if (fs::exists(newPath) && fs::is_directory(newPath))
+            {
+                currentDirectory = newPath;
+                pwd();
+            }
+            else
+            {
+                std::cerr << "Error: Invalid path or not a directory." << std::endl;
+            };
+        }
     }
-    catch (const std::filesystem::filesystem_error &ex)
+    catch (const fs::filesystem_error &ex)
     {
         std::cerr << "Error: " << ex.what() << std::endl;
     }
+};
+
+void FileManager::ls()
+{
+    try
+    {
+        for (const auto &entry : fs::directory_iterator(currentDirectory))
+        {
+            std::cout << entry.path().filename() << std::endl;
+        }
+    }
+    catch (const fs::filesystem_error &ex)
+    {
+        std::cerr << "Error: " << ex.what() << std::endl;
+    }
+};
+
+void FileManager::pwd()
+{
+    std::cout << "Current Directory: " << currentDirectory << std::endl;
+};
+
+void FileManager::mkfil(const std::string &fileName)
+{
+    try
+    {
+        std::ofstream file(currentDirectory / fileName);
+        if (file.is_open())
+        {
+            std::cout << "File '" << fileName << "' created successfully" << std::endl;
+        }
+        else
+        {
+            std::cerr << "Error: Could not create file '" << fileName << "'." << std::endl;
+        }
+    }
+    catch (const fs::filesystem_error &ex)
+    {
+        std::cerr << "Error: " << ex.what() << std::endl;
+    }
+};
+
+void FileManager::rmfil(const std::string &fileName)
+{
+    try
+    {
+        fs::remove(currentDirectory / fileName);
+        std::cout << "File '" << fileName << "' deleted successfully" << std::endl;
+    } catch (const fs::filesystem_error& ex) {
+        std::cerr << "Error: " << ex.what() << std::endl;
+    }
+};
+
+void FileManager::openfil(const std::string &fileName) {};
+void FileManager::renamefil(const std::string &oldFileName, const std::string &newFileName) {};
+void FileManager::mvfil(const std::string &sourceFileName, const std::string &destinationFileName) {};
+void FileManager::inffil(const std::string &fileName) {};
+void FileManager::mkdir(const std::string &path) {};
+void FileManager::rmdir(const std::string &path) {};
+
+int main()
+{
+    FileManager fm; // Create an instance of the FileManager
+
+    std::string command;
+    do
+    {
+        std::cout << "> "; // Prompt
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::getline(std::cin, command);
+
+        // Parse command (example: "cd myfolder")
+        std::istringstream iss(command);
+        std::string cmd;
+        iss >> cmd;
+
+        if (cmd == "cd")
+        {
+            std::string path;
+            iss >> path;
+            fm.cd(path);
+            } else if (cmd == "mkdir") {
+                std::string path;
+                iss >> path;
+                fm.mkdir(path);
+        }
+        else if (cmd == "ls")
+        {
+            fm.ls();
+        }
+        else if (cmd == "pwd")
+        {
+            fm.pwd();
+        }
+        else if (cmd == "mkfil")
+        {
+            std::string fileName;
+            iss >> fileName;
+            fm.mkfil(fileName);
+        } // ... handle other commands
+
+        else if (cmd == "exit" || cmd == "quit")
+        {
+            break; // Exit the loop
+        }
+        else if (!cmd.empty())
+        { // Ignore empty lines.
+            std::cout << "Unknown command: " << cmd << std::endl;
+        }
+
+    } while (true);
+
+    return 0;
 }
 
 void createFile()
@@ -261,14 +350,16 @@ void moveFile()
     {
         std::filesystem::path current_file_path(current_file_name);
 
-        if (!std::filesystem::exists(current_file_name)) {
+        if (!std::filesystem::exists(current_file_name))
+        {
             std::cerr << "Error: File '" << current_file_name << "' does not exist." << std::endl;
             return;
         };
 
         std::filesystem::path new_folder_path_obj(new_folder_name);
 
-        if (!std::filesystem::exists(new_folder_path_obj)) {
+        if (!std::filesystem::exists(new_folder_path_obj))
+        {
             std::cerr << "Error: Folder '" << new_folder_name << "' does not exist." << std::endl;
             return;
         };
