@@ -113,13 +113,68 @@ void FileManager::rmfil(const std::string &fileName)
     {
         fs::remove(currentDirectory / fileName);
         std::cout << "File '" << fileName << "' deleted successfully" << std::endl;
-    } catch (const fs::filesystem_error& ex) {
+    }
+    catch (const fs::filesystem_error &ex)
+    {
         std::cerr << "Error: " << ex.what() << std::endl;
     }
 };
 
-void FileManager::openfil(const std::string &fileName) {};
-void FileManager::renamefil(const std::string &oldFileName, const std::string &newFileName) {};
+void FileManager::openfil(const std::string &fileName)
+{
+    try
+    {
+        std::ifstream file(fileName);
+        std::string line;
+
+        if (file.is_open())
+        {
+            while (getline(file, line))
+            {
+                std::cout << line << '\n';
+            }
+            file.close();
+
+            std::cout << "\nPress Enter twice to continue...";
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear buffer
+            std::cin.get();
+        }
+
+        else
+        {
+            std::cout << "Unable to open file '" << fileName << "'." << std::endl
+        };
+    }
+    catch (const fs::filesystem_error &ex)
+    {
+        std::cerr << "Error: " << ex.what() << std::endl;
+    }
+};
+
+void FileManager::renamefil(const std::string &oldFileName, const std::string &newFileName)
+{
+    try
+    {
+        if (fs::exists(newFileName))
+        {
+            char overwrite;
+            std::cout << "Warning: File '" << newFileName << "' already exists. Overwrite? (y/n): ";
+            std::cin >> overwrite;
+            if (tolower(overwrite) != 'y')
+            {
+                std::cout << "Rename cancelled." << std::endl;
+                return;
+            }
+        }
+        fs::rename(oldFileName, newFileName);
+        std::cout << "File '" << oldFileName << "' successfully renamed to '" << newFileName << "'.\n"
+                  << std::endl;
+    }
+    catch (const fs::filesystem_error &ex)
+    {
+        std::cerr << "Error renaming file: " << ex.what() << std::endl;
+    }
+};
 void FileManager::mvfil(const std::string &sourceFileName, const std::string &destinationFileName) {};
 void FileManager::inffil(const std::string &fileName) {};
 void FileManager::mkdir(const std::string &path) {};
@@ -146,10 +201,12 @@ int main()
             std::string path;
             iss >> path;
             fm.cd(path);
-            } else if (cmd == "mkdir") {
-                std::string path;
-                iss >> path;
-                fm.mkdir(path);
+        }
+        else if (cmd == "mkdir")
+        {
+            std::string path;
+            iss >> path;
+            fm.mkdir(path);
         }
         else if (cmd == "ls")
         {
