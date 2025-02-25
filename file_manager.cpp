@@ -18,6 +18,7 @@ private:
 public:
     FileManager() : currentDirectory(fs::current_path()) {}
 
+    void help();
     void cd(const std::string &path);
     void ls();
     void pwd();
@@ -29,6 +30,19 @@ public:
     void inffil(const std::string &fileName);
     void mkdir(const std::string &path);
     void rmdir(const std::string &path);
+};
+
+void FileManager::help()
+{
+    std::cout << "File Manager Commands:" << std::endl;
+    std::cout << "help: Display this help message." << std::endl;
+    std::cout << "cd [path]: Change the current directory to the specified path." << std::endl;
+    std::cout << "ls: List the files and directories in the current directory." << std::endl;
+    std::cout << "pwd: Print the current working directory." << std::endl;
+    std::cout << "mkfil [filename]: Create a new file with the specified name." << std::endl;
+    std::cout << "rmfil [filename]: Delete the specified file." << std::endl;
+    std::cout << "openfil [filename]: Open the specified file in a text editor." << std::endl;
+    std::cout << "renamefil [oldfilename] [newfilename]: Rename the specified file." << std::endl;
 };
 
 void FileManager::cd(const std::string &path)
@@ -142,7 +156,7 @@ void FileManager::openfil(const std::string &fileName)
 
         else
         {
-            std::cout << "Unable to open file '" << fileName << "'." << std::endl
+            std::cout << "Unable to open file '" << fileName << "'." << std::endl;
         };
     }
     catch (const fs::filesystem_error &ex)
@@ -182,21 +196,24 @@ void FileManager::rmdir(const std::string &path) {};
 
 int main()
 {
-    FileManager fm; // Create an instance of the FileManager
+    FileManager fm;
 
     std::string command;
     do
     {
-        std::cout << "> "; // Prompt
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "> ";
+        // std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         std::getline(std::cin, command);
 
-        // Parse command (example: "cd myfolder")
         std::istringstream iss(command);
         std::string cmd;
         iss >> cmd;
 
-        if (cmd == "cd")
+        if (cmd == "help")
+        {
+            fm.help();
+        }
+        else if (cmd == "cd")
         {
             std::string path;
             iss >> path;
@@ -221,11 +238,22 @@ int main()
             std::string fileName;
             iss >> fileName;
             fm.mkfil(fileName);
-        } // ... handle other commands
-
+        }
+        else if (cmd == "rmfil")
+        {
+            std::string fileName;
+            iss >> fileName;
+            fm.rmfil(fileName);
+        }
+        else if (cmd == "renamefil")
+        {
+            std::string oldFileName, newFileName;
+            iss >> oldFileName >> newFileName;
+            fm.renamefil(oldFileName, newFileName);
+        }
         else if (cmd == "exit" || cmd == "quit")
         {
-            break; // Exit the loop
+            break;
         }
         else if (!cmd.empty())
         { // Ignore empty lines.
