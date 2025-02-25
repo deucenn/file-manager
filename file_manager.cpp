@@ -189,10 +189,78 @@ void FileManager::renamefil(const std::string &oldFileName, const std::string &n
         std::cerr << "Error renaming file: " << ex.what() << std::endl;
     }
 };
-void FileManager::mvfil(const std::string &sourceFileName, const std::string &destinationFileName) {};
-void FileManager::inffil(const std::string &fileName) {};
-void FileManager::mkdir(const std::string &path) {};
-void FileManager::rmdir(const std::string &path) {};
+void FileManager::mvfil(const std::string &sourceFileName, const std::string &destinationFileName)
+{
+    try
+    {
+        std::filesystem::path current_file_path(sourceFileName);
+
+        if (!std::filesystem::exists(sourceFileName))
+        {
+            std::cerr << "Error: File '" << sourceFileName << "' does not exist." << std::endl;
+            return;
+        };
+
+        std::filesystem::path new_folder_path_obj(destinationFileName);
+
+        if (!std::filesystem::exists(new_folder_path_obj))
+        {
+            std::cerr << "Error: Folder '" << destinationFileName << "' does not exist." << std::endl;
+            return;
+        };
+
+        std::filesystem::path new_file_path = new_folder_path_obj / current_file_path.filename();
+
+        std::filesystem::rename(current_file_path, new_file_path);
+        std::cout << "File '" << sourceFileName << "' successfully moved to '" << destinationFileName << "'." << std::endl;
+    }
+    catch (const std::filesystem::filesystem_error &ex)
+    {
+        std::cerr << "Error getting file information: " << ex.what() << std::endl;
+    }
+};
+void FileManager::inffil(const std::string &fileName)
+{
+    try
+    {
+        if (std::filesystem::exists(fileName))
+        {
+            std::filesystem::path file_path(fileName);
+            std::cout << "File Name: " << file_path.filename() << std::endl;
+            std::cout << "File Extension: " << file_path.extension() << std::endl;
+            std::cout << "Parent Directory: " << std::filesystem::current_path() << std::endl;
+            std::cout << "Is Directory: " << std::filesystem::is_directory(file_path) << std::endl;
+            std::cout << "Is Symbolic Link: " << std::filesystem::is_symlink(file_path) << std::endl;
+            std::cout << "File Size: " << std::to_string(std::filesystem::file_size(file_path)) << " bytes" << std::endl;
+        }
+        else
+        {
+            std::cout << "File '" << fileName << "' does not exist." << std::endl;
+        }
+    }
+    catch (const std::filesystem::filesystem_error &ex)
+    {
+        std::cerr << "Error getting file information: " << ex.what() << std::endl;
+    }
+};
+
+void FileManager::mkdir(const std::string &path)
+{
+    std::filesystem::create_directory(path);
+
+    std::cout << "Folder '" << path << "' created successfully" << std::endl;
+};
+void FileManager::rmdir(const std::string &path)
+{
+    if (std::filesystem::remove_all(path))
+    {
+        std::cout << "Folder '" << path << "' successfully deleted" << std::endl;
+    }
+    else
+    {
+        std::cout << "Error deleting folder '" << path << "'. It may still contain files." << std::endl;
+    }
+};
 
 int main()
 {
@@ -250,6 +318,30 @@ int main()
             std::string oldFileName, newFileName;
             iss >> oldFileName >> newFileName;
             fm.renamefil(oldFileName, newFileName);
+        }
+        else if (cmd == "mvfil")
+        {
+            std::string sourceFileName, destinationFileName;
+            iss >> sourceFileName >> destinationFileName;
+            fm.mvfil(sourceFileName, destinationFileName);
+        }
+        else if (cmd == "inffil")
+        {
+            std::string fileName;
+            iss >> fileName;
+            fm.inffil(fileName);
+        }
+        else if (cmd == "mkdir")
+        {
+            std::string path;
+            iss >> path;
+            fm.mkdir(path);
+        }
+        else if (cmd == "rmdir")
+        {
+            std::string path;
+            iss >> path;
+            fm.rmdir(path);
         }
         else if (cmd == "exit" || cmd == "quit")
         {
@@ -321,59 +413,6 @@ void openFile()
 
     else
         std::cout << "Unable to open file '" << file_name << "'." << std::endl;
-};
-
-void deleteFile()
-{
-    std::cout << "Deleting file..." << std::endl;
-    std::cout << "Enter the name of the file (inlcuding extensions): " << std::endl;
-    std::string file_name;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, file_name);
-
-    if (remove(file_name.c_str()) != 0)
-    {
-        std::cout << "Error deleting file" << std::endl;
-    }
-    else
-    {
-        std::cout << "File '" << file_name << "' successfully deleted" << std::endl;
-    }
-};
-
-void renameFile()
-{
-    std::cout << "Renaming file..." << std::endl;
-    std::cout << "Enter the current name of the file (inlcuding extensions) you want to rename: " << std::endl;
-    std::string current_file_name;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, current_file_name);
-
-    std::string new_file_name;
-    std::cout << "Enter the new name of the file (inlcuding extensions): " << std::endl;
-    std::getline(std::cin, new_file_name);
-
-    try
-    {
-        if (std::filesystem::exists(new_file_name))
-        {
-            char overwrite;
-            std::cout << "Warning: File '" << new_file_name << "' already exists. Overwrite? (y/n): ";
-            std::cin >> overwrite;
-            if (tolower(overwrite) != 'y')
-            {
-                std::cout << "Rename cancelled." << std::endl;
-                return;
-            }
-        }
-        std::filesystem::rename(current_file_name, new_file_name);
-        std::cout << "File '" << current_file_name << "' successfully renamed to '" << new_file_name << "'.\n"
-                  << std::endl;
-    }
-    catch (const std::filesystem::filesystem_error &ex)
-    {
-        std::cerr << "Error renaming file: " << ex.what() << std::endl;
-    }
 };
 
 void getFileInfo()
