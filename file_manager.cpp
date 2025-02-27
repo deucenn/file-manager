@@ -139,7 +139,7 @@ void FileManager::openfil(const std::string &fileName)
 {
     try
     {
-        std::ifstream file(fileName);
+        std::ifstream file(currentDirectory / fileName);
         std::string line;
 
         if (file.is_open())
@@ -170,7 +170,19 @@ void FileManager::renamefil(const std::string &oldFileName, const std::string &n
 {
     try
     {
-        if (fs::exists(newFileName))
+        if (!fs::exists(currentDirectory / oldFileName))
+        {
+            std::cerr << "Error: File '" << oldFileName << "' does not exist." << std::endl;
+            return;
+        };
+
+        if (oldFileName == newFileName)
+        {
+            std::cerr << "Error: New file name cannot be the same as the old file name." << std::endl;
+            return;
+        };
+
+        if (fs::exists(currentDirectory / newFileName))
         {
             char overwrite;
             std::cout << "Warning: File '" << newFileName << "' already exists. Overwrite? (y/n): ";
@@ -190,6 +202,7 @@ void FileManager::renamefil(const std::string &oldFileName, const std::string &n
         std::cerr << "Error renaming file: " << ex.what() << std::endl;
     }
 };
+
 void FileManager::mvfil(const std::string &sourceFileName, const std::string &destinationFileName)
 {
     try
@@ -249,12 +262,12 @@ void FileManager::wtf(const std::string &fileName)
 {
     try
     {
-        if (!fs::exists(fileName))
+        if (!fs::exists(currentDirectory / fileName))
         {
             std::cerr << "File '" << fileName << "' does not exist." << std::endl;
             return;
         };
-        std::ofstream file(fileName, std::ios::trunc);
+        std::ofstream file(currentDirectory / fileName, std::ios::trunc);
 
         if (file.is_open())
         {
@@ -271,7 +284,7 @@ void FileManager::wtf(const std::string &fileName)
             std::cout << "Written to '" << fileName << "' successfully" << std::endl;
         }
     }
-    catch (fs::filesystem_error &ex)
+    catch (const fs::filesystem_error &ex)
     {
         std::cerr << "Error opening file: " << ex.what() << std::endl;
     }
@@ -279,20 +292,48 @@ void FileManager::wtf(const std::string &fileName)
 
 void FileManager::mkdir(const std::string &path)
 {
-    std::filesystem::create_directory(path);
-
-    std::cout << "Folder '" << path << "' created successfully" << std::endl;
+    try
+    {
+        if (fs::exists(path))
+        {
+            std::cerr << "Error: Folder '" << path << "' already exists." << std::endl;
+            return;
+        }
+        fs::create_directory(path);
+        std::cout << "Folder '" << path << "' created successfully" << std::endl;
+    }
+    catch (fs::filesystem_error &ex)
+    {
+        std::cerr << "Error creating folder: " << ex.what() << std::endl;
+    }
 };
 
 void FileManager::rmdir(const std::string &path)
 {
-    if (std::filesystem::remove_all(path))
+    try
     {
-        std::cout << "Folder '" << path << "' successfully deleted" << std::endl;
+        if (!fs::exists(path))
+        {
+            std::cerr << "Error: Folder '" << path << "' does not exist." << std::endl;
+            return;
+        }
+        if (!fs::is_directory(path))
+        {
+            std::cerr << "Error: '" << path << "' is not a folder." << std::endl;
+            return;
+        }
+        if (fs::remove_all(path))
+        {
+            std::cout << "Folder '" << path << "' successfully deleted" << std::endl;
+        }
+        else
+        {
+            std::cout << "Error deleting folder '" << path << "'. It may still contain files." << std::endl;
+        }
     }
-    else
+    catch (const fs::filesystem_error &ex)
     {
-        std::cout << "Error deleting folder '" << path << "'. It may still contain files." << std::endl;
+        std::cerr << "Error deleting folder: " << ex.what() << std::endl;
     }
 };
 
@@ -347,6 +388,12 @@ int main()
             iss >> fileName;
             fm.rmfil(fileName);
         }
+        else if (cmd == "openfil")
+        {
+            std::string fileName;
+            iss >> fileName;
+            fm.openfil(fileName);
+        }
         else if (cmd == "renamefil")
         {
             std::string oldFileName, newFileName;
@@ -365,7 +412,8 @@ int main()
             iss >> fileName;
             fm.inffil(fileName);
         }
-        else if (cmd == "wtf") {
+        else if (cmd == "wtf")
+        {
             std::string fileName;
             iss >> fileName;
             fm.wtf(fileName);
