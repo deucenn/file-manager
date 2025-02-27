@@ -28,6 +28,7 @@ public:
     void renamefil(const std::string &oldFileName, const std::string &newFileName);
     void mvfil(const std::string &sourceFileName, const std::string &destinationFileName);
     void inffil(const std::string &fileName);
+    void wtf(const std::string &fileName);
     void mkdir(const std::string &path);
     void rmdir(const std::string &path);
 };
@@ -244,6 +245,38 @@ void FileManager::inffil(const std::string &fileName)
     }
 };
 
+void FileManager::wtf(const std::string &fileName)
+{
+    try
+    {
+        if (!fs::exists(fileName))
+        {
+            std::cerr << "File '" << fileName << "' does not exist." << std::endl;
+            return;
+        };
+        std::ofstream file(fileName, std::ios::trunc);
+
+        if (file.is_open())
+        {
+            std::cout << "Enter the content of the file (enter '***END***' on a new line to save):\n"
+                      << std::endl;
+            std::string line;
+
+            while (std::getline(std::cin, line) && line != "***END***")
+            {
+                file << line << std::endl;
+            }
+
+            file.close();
+            std::cout << "Written to '" << fileName << "' successfully" << std::endl;
+        }
+    }
+    catch (fs::filesystem_error &ex)
+    {
+        std::cerr << "Error opening file: " << ex.what() << std::endl;
+    }
+};
+
 void FileManager::mkdir(const std::string &path)
 {
     std::filesystem::create_directory(path);
@@ -331,6 +364,11 @@ int main()
             std::string fileName;
             iss >> fileName;
             fm.inffil(fileName);
+        }
+        else if (cmd == "wtf") {
+            std::string fileName;
+            iss >> fileName;
+            fm.wtf(fileName);
         }
         else if (cmd == "mkdir")
         {
@@ -458,10 +496,6 @@ void getFileInfo()
         std::cerr << "Error getting file information: " << ex.what() << std::endl;
     }
 };
-
-
-
-
 
 void copyFile() {};
 
