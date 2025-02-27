@@ -250,6 +250,7 @@ void FileManager::mkdir(const std::string &path)
 
     std::cout << "Folder '" << path << "' created successfully" << std::endl;
 };
+
 void FileManager::rmdir(const std::string &path)
 {
     if (std::filesystem::remove_all(path))
@@ -458,77 +459,9 @@ void getFileInfo()
     }
 };
 
-void moveFile()
-{
-    std::cout << "Moving file..." << std::endl;
-    std::cout << "Enter the current name of the file (inlcuding extensions): " << std::endl;
-    std::string current_file_name;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, current_file_name);
 
-    std::string new_folder_name;
-    std::cout << "Enter the new parent directory path for the file: " << std::endl;
-    std::getline(std::cin, new_folder_name);
 
-    try
-    {
-        std::filesystem::path current_file_path(current_file_name);
 
-        if (!std::filesystem::exists(current_file_name))
-        {
-            std::cerr << "Error: File '" << current_file_name << "' does not exist." << std::endl;
-            return;
-        };
-
-        std::filesystem::path new_folder_path_obj(new_folder_name);
-
-        if (!std::filesystem::exists(new_folder_path_obj))
-        {
-            std::cerr << "Error: Folder '" << new_folder_name << "' does not exist." << std::endl;
-            return;
-        };
-
-        std::filesystem::path new_file_path = new_folder_path_obj / current_file_path.filename();
-
-        std::filesystem::rename(current_file_path, new_file_path);
-        std::cout << "File '" << current_file_name << "' successfully moved to '" << new_folder_name << "'." << std::endl;
-    }
-    catch (const std::filesystem::filesystem_error &ex)
-    {
-        std::cerr << "Error getting file information: " << ex.what() << std::endl;
-    }
-};
-
-void createFolder()
-{
-    std::cout << "Creating a new folder..." << std::endl;
-    std::cout << "Enter the name of the folder: " << std::endl;
-    std::string folder_name;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, folder_name);
-
-    std::filesystem::create_directory(folder_name);
-
-    std::cout << "Folder '" << folder_name << "' created successfully" << std::endl;
-};
-
-void deleteFolder()
-{
-    std::cout << "Deleting folder..." << std::endl;
-    std::cout << "Enter the name of the folder: " << std::endl;
-    std::string folder_name;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(std::cin, folder_name);
-
-    if (std::filesystem::remove_all(folder_name))
-    {
-        std::cout << "Folder '" << folder_name << "' successfully deleted" << std::endl;
-    }
-    else
-    {
-        std::cout << "Error deleting folder '" << folder_name << "'. It may still contain files." << std::endl;
-    }
-};
 
 void copyFile() {};
 
