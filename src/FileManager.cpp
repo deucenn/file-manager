@@ -19,6 +19,11 @@ void FileManager::help()
     std::cout << "rmfil [filename]: Delete the specified file." << std::endl;
     std::cout << "openfil [filename]: Open the specified file in a text editor." << std::endl;
     std::cout << "renamefil [oldfilename] [newfilename]: Rename the specified file." << std::endl;
+    std::cout << "mvfil [filename] [destination]: Move the selected file to the specified destination." << std::endl;
+    std::cout << "inffil [filename]: See the metadata of specified file." << std::endl;
+    std::cout << "wtf [filename]: Write to the specified file." << std::endl;
+    std::cout << "mkdir [pathname]: Create a new directory with the specified name." << std::endl;
+    std::cout << "rmdir [pathname]: Remove the specified directory." << std::endl;
 };
 
 void FileManager::cd(const std::string &path)
