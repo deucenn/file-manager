@@ -60,6 +60,12 @@ int main()
             iss >> fileName;
             fm.openfil(fileName);
         }
+        else if (cmd == "head")
+        {
+            std::string fileName;
+            iss >> fileName;
+            fm.head(fileName);
+        }
         else if (cmd == "renamefil")
         {
             std::string oldFileName, newFileName;
@@ -109,4 +115,3 @@ int main()
 
     return 0;
 }
-

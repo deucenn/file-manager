@@ -18,6 +18,8 @@ void FileManager::help()
     std::cout << "mkfil [filename]: Create a new file with the specified name." << std::endl;
     std::cout << "rmfil [filename]: Delete the specified file." << std::endl;
     std::cout << "openfil [filename]: Open the specified file in a text editor." << std::endl;
+    std::cout << "head [filename]: Display the head of the file." << std::endl;
+    std::cout << "tail [filename]: Display the tail of the file." << std::endl;
     std::cout << "renamefil [oldfilename] [newfilename]: Rename the specified file." << std::endl;
     std::cout << "mvfil [filename] [destination]: Move the selected file to the specified destination." << std::endl;
     std::cout << "inffil [filename]: See the metadata of specified file." << std::endl;
@@ -136,6 +138,28 @@ void FileManager::openfil(const std::string &fileName)
         std::cerr << "Error: " << ex.what() << std::endl;
     }
 };
+
+void FileManager::head(const std::string &fileName) {
+    try {
+        if (!fs::exists(fileName)) {
+            std::cout << "Error: File '" << fileName << "' does not exist." << std::endl;
+        }
+        std::ifstream file(fileName);
+        if (file.is_open()) {
+            std::string line;
+            int lineNumber = 1;
+            while (std::getline(file, line)) {
+                std::cout << lineNumber << ": " << line << std::endl;
+                lineNumber++;
+                if (lineNumber > 10) {
+                    break;
+                }
+            }
+        }
+    } catch (const fs::filesystem_error &ex) {
+        std::cerr << "Error: " << ex.what() << std::endl;
+    }
+}
 
 void FileManager::renamefil(const std::string &oldFileName, const std::string &newFileName)
 {

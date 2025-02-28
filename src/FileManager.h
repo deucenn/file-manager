@@ -21,6 +21,8 @@ public:
     void mkfil(const std::string& fileName);
     void rmfil(const std::string& fileName);
     void openfil(const std::string& fileName);
+    void head(const std::string& fileName);
+    void tail(const std::string& fileName);
     void renamefil(const std::string& oldFileName, const std::string& newFileName);
     void mvfil(const std::string& sourceFileName, const std::string& destinationFileName);
     void inffil(const std::string& fileName);
