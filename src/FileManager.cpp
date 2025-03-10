@@ -4,7 +4,8 @@
 #include <limits>
 #include <chrono>
 #include <iomanip>
-#include <cstdlib>  
+#include <cstdlib>
+#include <vector>
 
 FileManager::FileManager() : currentDirectory(fs::current_path()) {}
 
@@ -121,7 +122,8 @@ void FileManager::openfil(const std::string &fileName)
 {
     try
     {
-        if (!fs::exists(currentDirectory / fileName)) {
+        if (!fs::exists(currentDirectory / fileName))
+        {
             std::cerr << "Error: File '" << fileName << "' does not exist." << std::endl;
             return;
         }
@@ -139,27 +141,65 @@ void FileManager::openfil(const std::string &fileName)
     }
 };
 
-void FileManager::head(const std::string &fileName) {
-    try {
-        if (!fs::exists(fileName)) {
+void FileManager::head(const std::string &fileName)
+{
+    try
+    {
+        if (!fs::exists(currentDirectory / fileName))
+        {
             std::cout << "Error: File '" << fileName << "' does not exist." << std::endl;
         }
-        std::ifstream file(fileName);
-        if (file.is_open()) {
+        std::ifstream file(currentDirectory / fileName);
+        if (file.is_open())
+        {
             std::string line;
             int lineNumber = 1;
-            while (std::getline(file, line)) {
+            while (std::getline(file, line))
+            {
                 std::cout << lineNumber << ": " << line << std::endl;
                 lineNumber++;
-                if (lineNumber > 10) {
+                if (lineNumber > 10)
+                {
                     break;
                 }
             }
         }
-    } catch (const fs::filesystem_error &ex) {
+    }
+    catch (const fs::filesystem_error &ex)
+    {
         std::cerr << "Error: " << ex.what() << std::endl;
     }
-}
+};
+
+void FileManager::tail(const std::string &fileName)
+{
+    try {
+        if (!fs::exists(currentDirectory / fileName)) {
+            std::cerr << "Error: File '" << fileName << "' does not exist." << std::endl;
+            return;
+        }
+
+        std::ifstream file(currentDirectory / fileName);
+        if (!file.is_open()) {
+            std::cerr << "Error: Could not open file '" << fileName << "'." << std::endl;
+            return;
+        }
+
+        std::vector<std::string> lines;
+        std::string line;
+        while (std::getline(file, line)) {
+            lines.push_back(line);
+        }
+
+        if (!lines.empty()) {
+            std::cout << lines.back() << std::endl; 
+        } else {
+            std::cerr << "Error: File '" << fileName << "' is empty." << std::endl;
+        }
+    } catch (const fs::filesystem_error& ex) {
+        std::cerr << "Error: " << ex.what() << std::endl;
+    }
+};
 
 void FileManager::renamefil(const std::string &oldFileName, const std::string &newFileName)
 {
